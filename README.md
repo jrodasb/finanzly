@@ -2,6 +2,10 @@
 
 Gestor de finanzas personales móvil multiplataforma, desarrollado con Flutter.
 
+## Descargar APK
+
+**[Descargar Finanzly-v1.0.0.apk](https://github.com/jrodasb/finanzly/releases/download/v1.0.0/Finanzly-v1.0.0.apk)**
+
 ## Descripción
 
 Finanzly es una aplicación 100% offline y standalone para el control de finanzas personales. Permite registrar ingresos y egresos, categorizar transacciones, establecer presupuestos mensuales con alertas automáticas y visualizar reportes gráficos de distribución de gastos.
