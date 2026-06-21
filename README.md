@@ -4,7 +4,7 @@ Gestor de finanzas personales móvil multiplataforma, desarrollado con Flutter.
 
 ## Descargar APK
 
-**[Descargar Finanzly-v1.0.0.apk](https://github.com/jrodasb/finanzly/releases/download/v1.0.0/Finanzly-v1.0.0.apk)**
+**[Descargar Finanzly-v2.0.0.apk](https://github.com/jrodasb/finanzly/releases/download/v2.0.0/Finanzly-v2.0.0.apk)** — versión final, 100% de requerimientos implementados
 
 ## Descripción
 
@@ -17,7 +17,7 @@ Finanzly es una aplicación 100% offline y standalone para el control de finanza
 | RF-01 | Registrar Transacción | Implementado |
 | RF-02 | Categorizar Transacciones | Implementado |
 | RF-03 | Establecer Presupuestos | Implementado |
-| RF-04 | Captura y OCR | Stub (Entrega 3) |
+| RF-04 | Captura y OCR | Implementado |
 | RF-05 | Alertas de Presupuesto | Implementado |
 | RF-06 | Reportes Gráficos | Implementado |
 
@@ -28,6 +28,7 @@ Finanzly es una aplicación 100% offline y standalone para el control de finanza
 - **Estado**: Provider (MVVM simplificado)
 - **Gráficos**: fl_chart
 - **Notificaciones**: flutter_local_notifications
+- **OCR**: google_mlkit_text_recognition (on-device) + image_picker
 
 ## Arquitectura
 
@@ -37,6 +38,8 @@ lib/
 ├── services/    — DatabaseService, NotificacionService, FinanzlyState
 ├── screens/     — Dashboard, Historial, Presupuestos, Estadísticas
 └── widgets/     — TransaccionForm, PresupuestoCard
+
+lib/services/ocr_service.dart  — captura y OCR de recibos
 ```
 
 ## Instalación
