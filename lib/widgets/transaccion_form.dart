@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../models/transaccion.dart';
 import '../models/categoria.dart';
 import '../services/finanzly_state.dart';
+import '../services/ocr_service.dart';
 import '../theme.dart';
 
 class TransaccionForm extends StatefulWidget {
@@ -19,12 +20,68 @@ class _TransaccionFormState extends State<TransaccionForm> {
   TipoTransaccion _tipo = TipoTransaccion.egreso;
   Categoria _categoria = Categoria.comida;
   DateTime _fecha = DateTime.now();
+  final _ocrService = OcrService();
+  bool _escaneando = false;
 
   @override
   void dispose() {
     _montoCtrl.dispose();
     _descCtrl.dispose();
+    _ocrService.dispose();
     super.dispose();
+  }
+
+  Future<void> _escanearRecibo() async {
+    if (!_ocrService.disponible) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(
+            'El escaneo OCR requiere cámara — disponible en Android e iOS.',
+          ),
+        ),
+      );
+      return;
+    }
+
+    setState(() => _escaneando = true);
+    try {
+      final recibo = await _ocrService.escanearRecibo();
+      if (recibo == null) return;
+
+      setState(() {
+        if (recibo.monto != null) {
+          _montoCtrl.text = recibo.monto!.toStringAsFixed(0);
+        }
+        if (recibo.fecha != null) {
+          _fecha = recibo.fecha!;
+        }
+        if (_descCtrl.text.isEmpty) {
+          _descCtrl.text = 'Recibo escaneado';
+        }
+      });
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              recibo.monto != null
+                  ? 'Datos extraídos del recibo. Verifica antes de guardar.'
+                  : 'No se detectó un monto claro — completa manualmente.',
+            ),
+          ),
+        );
+      }
+    } catch (_) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('No se pudo procesar el recibo. Intenta de nuevo.'),
+          ),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _escaneando = false);
+    }
   }
 
   Future<void> _guardar() async {
@@ -150,18 +207,19 @@ class _TransaccionFormState extends State<TransaccionForm> {
                 ),
               ),
               const SizedBox(height: 8),
-              // Stub OCR
+              // Escaneo OCR de recibos (Google ML Kit, on-device)
               OutlinedButton.icon(
-                onPressed: () {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content:
-                          Text('Escaneo OCR disponible en la próxima versión.'),
-                    ),
-                  );
-                },
-                icon: const Icon(Icons.camera_alt_outlined, size: 18),
-                label: const Text('Escanear recibo'),
+                onPressed: _escaneando ? null : _escanearRecibo,
+                icon: _escaneando
+                    ? const SizedBox(
+                        width: 16,
+                        height: 16,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      )
+                    : const Icon(Icons.camera_alt_outlined, size: 18),
+                label: Text(
+                  _escaneando ? 'Procesando recibo...' : 'Escanear recibo',
+                ),
               ),
               const SizedBox(height: 16),
               // Guardar
